@@ -63,14 +63,35 @@ class SighUpViewController: UIViewController {
             alert(text: "Ooops!", description: "Your password and confirm password not same, please enter same passwords")
             return
         }
-        
+        FirebaseAuthService.shared.register(email: email, password: password) { result in
+            if result {
+                FirebaseService.shared.addUser(name: "", phone: "", email: email, withAutoId: true)
+                FirebaseAuthService.shared.verify { result in
+                    if result {
+                        DispatchQueue.main.async {
+                            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                            let controller = storyboard.instantiateViewController(identifier: "RootModule")
+                            controller.modalPresentationStyle = .fullScreen
+                            if let window = UIApplication.shared.delegate as? AppDelegate {
+                                window.window?.rootViewController = controller
+                            }
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            self.alert(text: "Ooops!", description: "Please enter your correct info")
+                        }
+                    }
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self.alert(text: "Ooops!", description: "Please enter your correct info")
+                }
+            }
+        }
         if  AuthService.shared.register(user: AuthService.User(name: name, surname: surname, email: email, password: confirm)) {
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            let controller = storyboard.instantiateViewController(identifier: "RootModule")
-            controller.modalPresentationStyle = .fullScreen
-            present(controller, animated: true)
+            
         } else {
-            alert(text: "Ooops!", description: "Please enter your correct info")
+            
         }
         
     }

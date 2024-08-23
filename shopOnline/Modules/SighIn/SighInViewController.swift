@@ -27,7 +27,8 @@ class SighInViewController: UIViewController {
     
     private func configure() {
         logInButton.layer.cornerRadius = 10
-        emailTextField.text = "admin@gmail.com"
+        emailTextField.text = "admin123@gmail.com"
+        passwordTextField.text = "qwerty"
     }
     
     @IBAction func forgotButtonDidTapped(_ sender: Any) {
@@ -48,15 +49,25 @@ class SighInViewController: UIViewController {
             alert(text: "Ooops!", description: "Please enter your password")
             return
         }
-        if let user = AuthService.shared.login(email: email, password: password) {
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            let controller = storyboard.instantiateViewController(identifier: "RootModule")
-            controller.modalPresentationStyle = .fullScreen
-            present(controller, animated: true)
-        } else {
-            alert(text: "Ooops!", description: "User not found")
+        FirebaseAuthService.shared.login(email: email, password: password) { result in
+            DispatchQueue.main.async {
+                if result {
+                    let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                    let controller = storyboard.instantiateViewController(identifier: "RootModule")
+                    controller.modalPresentationStyle = .fullScreen
+                    if let window = UIApplication.shared.delegate as? AppDelegate {
+                        window.window?.rootViewController = controller
+                    }
+                } else {
+                    self.alert(text: "Ooops!", description: "User not found")
+                }
+            }
         }
+        
+        
+        
     }
-    
-    
 }
+    
+    
+

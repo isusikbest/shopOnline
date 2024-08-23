@@ -32,18 +32,19 @@ class RestoreWithEmailViewController: UIViewController {
             alert(text: "Something wrong!", description: "Please enter your email")
             return
         }
-        if let code = AuthService.shared.restore(email: email) {
-            let storyBoard = UIStoryboard(name: "Main", bundle: nil)
-            guard  let controller = storyBoard.instantiateViewController(withIdentifier: "RestoreWithCodeViewController") as? RestoreWithCodeViewController else {
-                return
+        FirebaseAuthService.shared.restore(email: email) { result in
+            DispatchQueue.main.async {
+                if result {
+                    self.navigationController?.popToRootViewController(animated: true)
+                     
+                } else {
+                    DispatchQueue.main.async {
+                        self.alert(text: "Something wrong!", description: "Please enter your correct email")
+                    }
+                }
             }
-            controller.tempEmail = email
-            PushService.shared.notify(text: code)
-            navigationController?.pushViewController(controller, animated: true)
-            
-        } else  {
-            alert(text: "Something wrong!", description: "Please enter your correct email")
         }
+      
         
     }
     
